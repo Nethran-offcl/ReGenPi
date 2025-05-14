@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
@@ -9,7 +8,6 @@ const navItems = [
   { name: "Home", path: "/" },
   { name: "List Waste", path: "/input" },
   { name: "Find Materials", path: "/matchmaking" },
-  { name: "Track Shipments", path: "/tracking" },
   { name: "About", path: "/about" },
   { name: "Contact", path: "/contact" }
 ];

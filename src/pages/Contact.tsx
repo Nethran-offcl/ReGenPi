@@ -1,7 +1,4 @@
-
 import { useState } from "react";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -31,7 +28,6 @@ const Contact = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative overflow-hidden bg-gradient-to-br from-regen-blue-dark to-regen-green-dark text-white py-20">
@@ -198,7 +194,6 @@ const Contact = () => {
           </div>
         </section>
       </main>
-      <Footer />
     </div>
   );
 };

@@ -1,11 +1,6 @@
-
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-
 const About = () => {
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative overflow-hidden bg-gradient-to-br from-regen-green-dark to-regen-blue-dark text-white py-20">
@@ -171,7 +166,6 @@ const About = () => {
           </div>
         </section>
       </main>
-      <Footer />
     </div>
   );
 };

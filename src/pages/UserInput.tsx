@@ -1,6 +1,4 @@
-
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,20 +8,89 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 
+interface FormData {
+  name: string;
+  category: string;
+  condition: string;
+  description: string;
+  quantity: string;
+  unit: string;
+  frequency: string;
+  location: string;
+  notes: string;
+  email: string;
+}
+
 const UserInput = () => {
   const { toast } = useToast();
+  const [formData, setFormData] = useState<FormData>({
+    name: '',
+    category: '',
+    condition: '',
+    description: '',
+    quantity: '',
+    unit: '',
+    frequency: '',
+    location: '',
+    notes: '',
+    email: '',
+  });
   
-  const handleFormSubmit = (event: React.FormEvent) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleSelectChange = (id: string, value: string) => {
+    setFormData(prev => ({ ...prev, [id]: value }));
+  };
+  
+  const handleFormSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    toast({
-      title: "Waste material listed successfully!",
-      description: "Your material has been added to our database and will be matched with potential buyers.",
-    });
+    try {
+      const response = await fetch('/api/items', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit item');
+      }
+
+      const data = await response.json();
+      
+      toast({
+        title: "Waste material listed successfully!",
+        description: "Your material has been added to our database and will be matched with potential buyers.",
+      });
+
+      // Reset form
+      setFormData({
+        name: '',
+        category: '',
+        condition: '',
+        description: '',
+        quantity: '',
+        unit: '',
+        frequency: '',
+        location: '',
+        notes: '',
+        email: '',
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit the item. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
   
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
       <main className="flex-1 py-12">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center space-y-4 text-center mb-12">
@@ -50,15 +117,21 @@ const UserInput = () => {
                     </CardHeader>
                     <CardContent className="space-y-6">
                       <div className="space-y-2">
-                        <Label htmlFor="material-name">Material Name</Label>
-                        <Input id="material-name" placeholder="e.g., Plastic Scraps, Wood Pallets" required />
+                        <Label htmlFor="name">Material Name</Label>
+                        <Input 
+                          id="name" 
+                          placeholder="e.g., Plastic Scraps, Wood Pallets" 
+                          required 
+                          value={formData.name}
+                          onChange={handleInputChange}
+                        />
                       </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="material-category">Category</Label>
-                          <Select>
-                            <SelectTrigger id="material-category">
+                          <Label htmlFor="category">Category</Label>
+                          <Select onValueChange={(value) => handleSelectChange('category', value)}>
+                            <SelectTrigger id="category">
                               <SelectValue placeholder="Select category" />
                             </SelectTrigger>
                             <SelectContent>
@@ -78,7 +151,7 @@ const UserInput = () => {
                         
                         <div className="space-y-2">
                           <Label htmlFor="condition">Condition</Label>
-                          <Select>
+                          <Select onValueChange={(value) => handleSelectChange('condition', value)}>
                             <SelectTrigger id="condition">
                               <SelectValue placeholder="Select condition" />
                             </SelectTrigger>
@@ -99,18 +172,27 @@ const UserInput = () => {
                           id="description"
                           placeholder="Provide detailed information about composition, source, etc."
                           className="min-h-[120px]"
+                          value={formData.description}
+                          onChange={handleInputChange}
                         />
                       </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="quantity">Quantity</Label>
-                          <Input id="quantity" type="number" min="0" placeholder="Amount" />
+                          <Input 
+                            id="quantity" 
+                            type="number" 
+                            min="0" 
+                            placeholder="Amount"
+                            value={formData.quantity}
+                            onChange={handleInputChange}
+                          />
                         </div>
                         
                         <div className="space-y-2">
                           <Label htmlFor="unit">Unit</Label>
-                          <Select>
+                          <Select onValueChange={(value) => handleSelectChange('unit', value)}>
                             <SelectTrigger id="unit">
                               <SelectValue placeholder="Select unit" />
                             </SelectTrigger>
@@ -129,7 +211,7 @@ const UserInput = () => {
                         
                         <div className="space-y-2">
                           <Label htmlFor="frequency">Frequency</Label>
-                          <Select>
+                          <Select onValueChange={(value) => handleSelectChange('frequency', value)}>
                             <SelectTrigger id="frequency">
                               <SelectValue placeholder="Select frequency" />
                             </SelectTrigger>
@@ -148,27 +230,12 @@ const UserInput = () => {
                       
                       <div className="space-y-2">
                         <Label htmlFor="location">Location</Label>
-                        <Input id="location" placeholder="City, State/Province, Country" />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="photos">Photos</Label>
-                        <div className="flex items-center justify-center w-full">
-                          <label
-                            htmlFor="dropzone-file"
-                            className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted/70 transition-colors"
-                          >
-                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                              <p className="mb-2 text-sm text-gray-500">
-                                <span className="font-semibold">Click to upload</span> or drag and drop
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                PNG, JPG or WEBP (MAX. 5MB each)
-                              </p>
-                            </div>
-                            <input id="dropzone-file" type="file" className="hidden" multiple />
-                          </label>
-                        </div>
+                        <Input 
+                          id="location" 
+                          placeholder="City, State/Province, Country"
+                          value={formData.location}
+                          onChange={handleInputChange}
+                        />
                       </div>
                       
                       <div className="space-y-2">
@@ -176,11 +243,47 @@ const UserInput = () => {
                         <Textarea
                           id="notes"
                           placeholder="Any special considerations, handling requirements, etc."
+                          value={formData.notes}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                          Contact Email
+                        </Label>
+                        <Input
+                          type="email"
+                          name="email"
+                          id="email"
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                          required
                         />
                       </div>
                     </CardContent>
                     <CardFooter className="flex justify-between">
-                      <Button variant="outline">Save Draft</Button>
+                      <Button 
+                        type="button" 
+                        variant="outline"
+                        onClick={() => {
+                          setFormData({
+                            name: '',
+                            category: '',
+                            condition: '',
+                            description: '',
+                            quantity: '',
+                            unit: '',
+                            frequency: '',
+                            location: '',
+                            notes: '',
+                            email: '',
+                          });
+                        }}
+                      >
+                        Clear Form
+                      </Button>
                       <Button type="submit">Submit Listing</Button>
                     </CardFooter>
                   </form>
@@ -248,7 +351,6 @@ const UserInput = () => {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };
